@@ -28,9 +28,11 @@
             nixpkgs.legacyPackages.${system}.pkgsCross.aarch64-multiplatform-musl;
 
         fenixPkgs = fenix.packages.${system};
+
         target = "aarch64-unknown-linux-musl";
+
         rustFull = with fenixPkgs; combine [
-          (stable.withComponents [
+          (latest.withComponents [
             "cargo"
             "clippy-preview"
             "rust-src"
@@ -38,20 +40,13 @@
             "rustc"
             "rustfmt-preview"
           ])
-          targets.${target}.stable.rust-std
-        ];
-        rustMinimal = with fenixPkgs; combine [
-          (minimal.withComponents [
-            "cargo"
-            "rust-std"
-            "rustc"
-          ])
           targets.${target}.latest.rust-std
         ];
 
         naerskBuild = (naersk.lib.${system}.override {
-          cargo = rustMinimal;
-          rustc = rustMinimal;
+          stdenv = pkgs.llvmPackages_11.stdenv;
+          cargo = rustFull;
+          rustc = rustFull;
         }).buildPackage;
 
         cargoConfig = {
@@ -62,11 +57,12 @@
       {
         packages.http-spi-bridge = naerskBuild ({
           src = ./.;
+
           doDoc = true;
 
-          nativeBuildInputs = with pkgs.pkgsBuildBuild; [
-            llvmPackages.lld
-          ];
+          nativeBuildInputs = with pkgs.pkgsBuildBuild.llvmPackages_11; [ clang lld ];
+
+          dontPatchELF = true;
         } // cargoConfig);
 
         defaultPackage = self.packages.${system}.http-spi-bridge;
@@ -75,34 +71,25 @@
           inherit (self.checks.${system}.pre-commit-check) shellHook;
           name = "http-spi-bridge";
 
-          nativeBuildInputs = with pkgs.pkgsBuildBuild; [
+          nativeBuildInputs = (self.defaultPackage.${system}.nativeBuildInputs or [ ])
+            ++ (with pkgs.pkgsBuildBuild; [
             cargo-edit
             cargo-udeps
             fenixPkgs.rust-analyzer
             file
-            gcc
-            llvmPackages.lld
             nix-linter
             nixpkgs-fmt
             qemu
-            rustFull
-          ];
+          ]);
         } // cargoConfig);
 
-        checks = {
-          pre-commit-check = (pre-commit-hooks.lib.${system}.run {
-            src = ./.;
-            hooks = {
-              nixpkgs-fmt.enable = true;
-              nix-linter.enable = true;
-              rustfmt = {
-                enable = true;
-                entry = pkgs.lib.mkForce ''
-                  bash -c 'PATH="$PATH:${rustFull}/bin" cargo fmt -- --check --color always'
-                '';
-              };
-            };
-          });
-        };
+        checks.pre-commit-check = (pre-commit-hooks.lib.${system}.run {
+          src = ./.;
+          hooks = {
+            nix-linter.enable = true;
+            nixpkgs-fmt.enable = true;
+            rustfmt.enable = true;
+          };
+        });
       });
 }
