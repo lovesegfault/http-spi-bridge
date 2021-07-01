@@ -12,8 +12,6 @@ use tracing::error;
 
 use crate::spi::Spi;
 
-pub const DATA_LEN: usize = 7868;
-
 /// The JSON data we expect to receive via POST on the `update_raw` endpoint.
 #[derive(Debug, Deserialize, Clone)]
 #[serde(crate = "rocket::serde")]
@@ -24,11 +22,11 @@ pub struct Data {
 
 #[post("/update_raw", format = "json", data = "<data>")]
 async fn write_data(data: Json<Data>, dev: &'_ State<Spi>) -> Value {
-    if data.raw.len() != DATA_LEN {
-        error!("raw_data not {} bytes, refusing to write", DATA_LEN);
+    if data.raw.len() != Spi::DATA_LEN as usize {
+        error!("raw_data not {} bytes, refusing to write", Spi::DATA_LEN);
         return json!({
             "status": "error",
-            "reason": format!("raw_data is not {} bytes long", DATA_LEN)
+            "reason": format!("raw_data is not {} bytes long", Spi::DATA_LEN)
         });
     }
 

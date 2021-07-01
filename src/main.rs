@@ -37,7 +37,9 @@ async fn main() -> Result<()> {
     info!("Opening {:?}", spi_path);
 
     // create the spi device, see src/spi.rs
-    let spi = spi::Spi::new(spi_path).with_context(|| "failed to open SPI bus")?;
+    let spi = spi::Spi::new(spi_path)
+        .await
+        .with_context(|| "failed to open SPI bus")?;
     info!("Configured SPI bus");
 
     info!("Serving on {}", opt.addr);
