@@ -32,7 +32,7 @@
         fenixPkgs = fenix.packages.${system};
         target = "aarch64-unknown-linux-musl";
         rustFull = with fenixPkgs; combine [
-          (stable.withComponents [
+          (latest.withComponents [
             "cargo"
             "clippy-preview"
             "rust-src"
@@ -40,7 +40,7 @@
             "rustc"
             "rustfmt-preview"
           ])
-          targets.${target}.stable.rust-std
+          targets.${target}.latest.rust-std
         ];
         rustMinimal = with fenixPkgs; combine [
           (minimal.withComponents [
@@ -79,6 +79,7 @@
 
           nativeBuildInputs = with pkgsCross.pkgsBuildBuild; [
             cargo-edit
+            cargo-udeps
             fenixPkgs.rust-analyzer
             file
             gcc
