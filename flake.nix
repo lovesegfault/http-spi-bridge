@@ -21,13 +21,11 @@
   outputs = { self, fenix, flake-utils, naersk, nixpkgs, pre-commit-hooks }:
     flake-utils.lib.eachDefaultSystem (system:
       let
-        pkgs = nixpkgs.legacyPackages.${system};
-
-        pkgsCross =
+        pkgs =
           if "${system}" == "aarch64-linux" then
-            pkgs
+            nixpkgs.legacyPackages.${system}
           else
-            pkgs.pkgsCross.aarch64-multiplatform-musl;
+            nixpkgs.legacyPackages.${system}.pkgsCross.aarch64-multiplatform-musl;
 
         fenixPkgs = fenix.packages.${system};
         target = "aarch64-unknown-linux-musl";
@@ -66,18 +64,18 @@
           src = ./.;
           doDoc = true;
 
-          nativeBuildInputs = with pkgsCross.pkgsBuildBuild; [
+          nativeBuildInputs = with pkgs.pkgsBuildBuild; [
             llvmPackages.lld
           ];
         } // cargoConfig);
 
         defaultPackage = self.packages.${system}.http-spi-bridge;
 
-        devShell = pkgsCross.mkShell ({
+        devShell = pkgs.mkShell ({
           inherit (self.checks.${system}.pre-commit-check) shellHook;
           name = "http-spi-bridge";
 
-          nativeBuildInputs = with pkgsCross.pkgsBuildBuild; [
+          nativeBuildInputs = with pkgs.pkgsBuildBuild; [
             cargo-edit
             cargo-udeps
             fenixPkgs.rust-analyzer
