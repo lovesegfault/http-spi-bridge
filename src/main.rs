@@ -3,8 +3,8 @@ mod spi;
 
 use anyhow::{Context, Result};
 use structopt::StructOpt;
-use tracing::info;
-use tracing_subscriber::FmtSubscriber;
+use tracing::{info, Level};
+use tracing_subscriber::{EnvFilter, FmtSubscriber};
 
 use std::{net::SocketAddr, path::PathBuf};
 
@@ -20,7 +20,8 @@ struct Opt {
 async fn main() -> Result<()> {
     // setup the tracing subscriber to enable logging
     let subscriber = FmtSubscriber::builder()
-        .with_max_level(tracing::Level::INFO)
+        .with_max_level(Level::INFO)
+        .with_env_filter(EnvFilter::from_default_env())
         .finish();
     tracing::subscriber::set_global_default(subscriber)
         .with_context(|| "Unable to set global default subscriber")?;
