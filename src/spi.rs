@@ -26,7 +26,7 @@ impl Spi {
 
         // if modinfo returns 1, then spidev isn't a module at all.
         let exists = status.success();
-        debug!(spidev_exists = exists);
+        debug!(exists);
         Ok(exists)
     }
 
@@ -44,7 +44,7 @@ impl Spi {
         let stdout = String::from_utf8_lossy(&out.stdout);
 
         let loaded = stdout.contains("spidev");
-        debug!(spidev_loaded = loaded);
+        debug!(loaded);
         Ok(loaded)
     }
 
@@ -68,7 +68,7 @@ impl Spi {
             .parse()
             .with_context(|| "failed to parse spidev buffer size")?;
 
-        debug!(spidev_buffer_size = buffer_size);
+        debug!(buffer_size);
         Ok(buffer_size)
     }
 
