@@ -10,7 +10,7 @@ use std::{net::SocketAddr, path::PathBuf};
 
 #[derive(Debug, StructOpt)]
 struct Opt {
-    #[structopt(short, long, default_value = "/dev/spi0.0", parse(from_os_str))]
+    #[structopt(short, long, default_value = "/dev/spidev0.0", parse(from_os_str))]
     device: PathBuf,
     #[structopt(short, long, default_value = "127.0.0.1:8000")]
     addr: SocketAddr,
