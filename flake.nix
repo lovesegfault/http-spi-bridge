@@ -32,7 +32,7 @@
         fenixPkgs = fenix.packages.${system};
         target = "aarch64-unknown-linux-musl";
         rustFull = with fenixPkgs; combine [
-          (latest.withComponents [
+          (stable.withComponents [
             "cargo"
             "clippy-preview"
             "rust-src"
@@ -40,7 +40,7 @@
             "rustc"
             "rustfmt-preview"
           ])
-          targets.${target}.latest.rust-std
+          targets.${target}.stable.rust-std
         ];
         rustMinimal = with fenixPkgs; combine [
           (minimal.withComponents [

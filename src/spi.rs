@@ -1,6 +1,6 @@
 use anyhow::{Context, Result};
+use rocket::tokio::sync::Mutex;
 use spidev::{Spidev, SpidevOptions};
-use tokio::sync::Mutex;
 use tracing::debug;
 
 use std::{io::prelude::*, path::Path, sync::Arc};
@@ -34,7 +34,7 @@ impl Spi {
     ///
     /// Returns the number of bytes written.
     #[tracing::instrument(skip(self, data))]
-    pub async fn write_data(&mut self, data: &[u8]) -> Result<usize> {
+    pub async fn write_data(&self, data: &[u8]) -> Result<usize> {
         debug!("writing {} bytes to SPI", data.len());
         self.dev
             .lock()
