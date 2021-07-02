@@ -51,7 +51,14 @@ jobs:
         with:
           name: nix-community
       - name: nix-build
-        run: nix build -L
+        run: |
+          nix build -L
+          mkdir -p ~/result
+          cp -v ./result/bin/http-spi-bridge ~/result
+      - uses: actions/upload-artifact@v2
+        with:
+          name: http-spi-bridge
+          path: ~/result/http-spi-bridge
   publish:
     runs-on: ubuntu-latest
     if: github.ref == 'refs/heads/main'
@@ -68,10 +75,9 @@ jobs:
       - uses: cachix/cachix-action@v10
         with:
           name: nix-community
-      - name: nix-build
-        run: |
-          nix build -L
-          cp ./result/bin/http-spi-bridge ./
+      - uses: actions/download-artifact@v2
+        with:
+          name: http-spi-bridge
       - uses: mathieudutour/github-tag-action@v5.5
         id: tag
         with:
