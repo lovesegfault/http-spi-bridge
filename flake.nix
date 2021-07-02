@@ -58,8 +58,6 @@
         packages.http-spi-bridge = naerskBuild ({
           src = ./.;
 
-          doDoc = true;
-
           nativeBuildInputs = with pkgs.pkgsBuildBuild.llvmPackages_11; [ clang lld ];
 
           dontPatchELF = true;
