@@ -121,14 +121,14 @@ impl Spi {
 
     #[tracing::instrument]
     async fn set_spidev_buffer_size(size: u16) -> Result<()> {
-        // First we check whether spidev is a module, or whether it was linked into the kernel. If
-        // it isn't a module there's nothing we can do.
-        anyhow::ensure!(Self::check_spidev_exists().await?);
-        // Next we check whether the size of spidev is currently, if it's already correct we don't
-        // need to do anything
+        // First we check what the buffer size of spidev is currently, if it's already correct we
+        // don't need to do anything
         if size == Self::get_spidev_buffer_size().await? {
             return Ok(());
         };
+        // Next we check whether spidev is a module, or whether it was linked into the kernel. If
+        // it isn't a module there's nothing we can do to change the buffer size.
+        anyhow::ensure!(Self::check_spidev_exists().await?);
         // Since we need to change the module's parameters, we need to unload it
         Self::unload_spidev().await?;
         // And now we can re-load it with the right size
