@@ -88,7 +88,12 @@
           hooks = {
             nix-linter.enable = true;
             nixpkgs-fmt.enable = true;
-            rustfmt.enable = true;
+            rustfmt = {
+              enable = true;
+              entry = pkgs.lib.mkForce ''
+                bash -c 'PATH="$PATH:${rustFull}/bin" cargo fmt -- --check --color always'
+              '';
+            };
           };
         });
       });
