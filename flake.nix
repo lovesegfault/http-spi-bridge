@@ -82,6 +82,8 @@
             nixpkgs-fmt
             qemu
           ]);
+
+          buildInputs = (self.defaultPackage.${system}.buildInputs or [ ]);
         } // cargoConfig);
 
         checks.pre-commit-check = (pre-commit-hooks.lib.${system}.run {
