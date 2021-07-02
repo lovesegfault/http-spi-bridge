@@ -47,6 +47,14 @@ async fn write_data(data: Json<Data>, dev: &'_ State<Spi>) -> Value {
     })
 }
 
+#[catch(422)]
+fn malformed() -> Value {
+    json!({
+        "status": "error",
+        "reason": "Malformed JSON request."
+    })
+}
+
 #[catch(404)]
 fn not_found() -> Value {
     json!({
@@ -59,7 +67,7 @@ pub fn stage(spi: Spi) -> AdHoc {
     AdHoc::on_ignite("HTTP-SPI-Bridge", |rocket| async {
         rocket
             .mount("/", routes![write_data])
-            .register("/", catchers![not_found])
+            .register("/", catchers![not_found, malformed])
             .manage(spi)
     })
 }
