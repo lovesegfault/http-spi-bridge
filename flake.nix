@@ -73,6 +73,7 @@
 
           nativeBuildInputs = (self.defaultPackage.${system}.nativeBuildInputs or [ ])
             ++ (with pkgs.pkgsBuildBuild; [
+            cargo-audit
             cargo-edit
             cargo-udeps
             fenixPkgs.rust-analyzer
