@@ -14,6 +14,8 @@ impl Spi {
     pub const DATA_LEN: u16 = 7868;
 
     /// Check whether the `spidev` module exists.
+    ///
+    /// This will fail if `spidev` is linked into the kernel, or not available at all.
     #[tracing::instrument]
     async fn check_spidev_exists() -> Result<bool> {
         let status = Command::new("modinfo")
@@ -30,6 +32,7 @@ impl Spi {
         Ok(exists)
     }
 
+    /// Check whether the `spidev` module is loaded.
     #[tracing::instrument]
     async fn check_spidev_loaded() -> Result<bool> {
         let out = Command::new("lsmod")
@@ -48,6 +51,8 @@ impl Spi {
         Ok(loaded)
     }
 
+    /// Retrieves the current `spidev` buffer size (`bufsiz`) parameter from
+    /// `/sys/module/spidev/parameters/bufsiz`.
     #[tracing::instrument]
     async fn get_spidev_buffer_size() -> Result<u16> {
         let file = File::open("/sys/module/spidev/parameters/bufsiz")
@@ -72,6 +77,7 @@ impl Spi {
         Ok(buffer_size)
     }
 
+    /// Unloads the `spidev` kernel module, if loaded.
     #[tracing::instrument]
     async fn unload_spidev() -> Result<()> {
         // if the module isn't loaded we don't even try to do anything
@@ -96,6 +102,8 @@ impl Spi {
         Ok(())
     }
 
+    /// Loads the `spidev` kernel module, optionally applying the buffer size (`bufsiz`) parameter
+    /// on load.
     #[tracing::instrument]
     async fn load_spidev(buffer_size: Option<u16>) -> Result<()> {
         let mut cmd = Command::new("modprobe");
@@ -119,6 +127,10 @@ impl Spi {
         Ok(())
     }
 
+    /// Sets the `spidev` buffer size (`bufsiz`) parameter to the specified value.
+    ///
+    /// This works by unloading the module, and reloading with the parameter specified, and only
+    /// works if `spidev` is built as a module and not linked into the kernel.
     #[tracing::instrument]
     async fn set_spidev_buffer_size(size: u16) -> Result<()> {
         // First we check what the buffer size of spidev is currently, if it's already correct we
