@@ -21,15 +21,17 @@
   outputs = { self, fenix, flake-utils, naersk, nixpkgs, pre-commit-hooks }:
     flake-utils.lib.eachDefaultSystem (system:
       let
-        pkgs =
-          if "${system}" == "aarch64-linux" then
-            nixpkgs.legacyPackages.${system}
-          else
-            nixpkgs.legacyPackages.${system}.pkgsCross.aarch64-multiplatform-musl;
+        target = "armv7-unknown-linux-musleabihf";
+
+        pkgs = import nixpkgs {
+          localSystem = system;
+          crossSystem = {
+            config = "armv7l-unknown-linux-musleabihf";
+            platform = nixpkgs.lib.systems.platforms.armv7l-hf-multiplatform;
+          };
+        };
 
         fenixPkgs = fenix.packages.${system};
-
-        target = "aarch64-unknown-linux-musl";
 
         rustFull = with fenixPkgs; combine [
           (latest.withComponents [
@@ -44,7 +46,7 @@
         ];
 
         naerskBuild = (naersk.lib.${system}.override {
-          stdenv = pkgs.llvmPackages_11.stdenv;
+          stdenv = pkgs.llvmPackages.stdenv;
           cargo = rustFull;
           rustc = rustFull;
         }).buildPackage;
@@ -58,7 +60,7 @@
         packages.http-spi-bridge = naerskBuild ({
           src = ./.;
 
-          nativeBuildInputs = with pkgs.pkgsBuildBuild.llvmPackages_11; [ clang lld ];
+          nativeBuildInputs = with pkgs.pkgsBuildBuild.llvmPackages; [ clang lld ];
 
           dontPatchELF = true;
         } // cargoConfig);
