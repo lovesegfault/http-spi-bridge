@@ -4,6 +4,7 @@ on:
     branches:
       - main
       - flake-update
+      - dependabot/*
 jobs:
   clippy:
     runs-on: ubuntu-latest
