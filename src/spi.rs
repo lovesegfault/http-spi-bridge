@@ -152,7 +152,7 @@ impl Spi {
     }
 
     /// Opens the SPI device at `path` and configures it.
-    pub async fn new<P: AsRef<Path>>(path: P) -> Result<Self> {
+    pub async fn new<P: AsRef<Path>>(path: P, speed: u32) -> Result<Self> {
         Self::set_spidev_buffer_size(Self::DATA_LEN)
             .await
             .with_context(|| "failed to configure SPI device's bufsiz")?;
@@ -163,7 +163,7 @@ impl Spi {
         // is.
         let options = SpidevOptions::new()
             .bits_per_word(8)
-            .max_speed_hz(250 * 10_u32.pow(6))
+            .max_speed_hz(speed)
             .build();
 
         dev.configure(&options)

@@ -14,6 +14,8 @@ struct Opt {
     device: PathBuf,
     #[structopt(short, long, default_value = "127.0.0.1:8000")]
     addr: SocketAddr,
+    #[structopt(short, long, default_value = "300000")]
+    speed: u32,
 }
 
 #[rocket::main]
@@ -37,7 +39,7 @@ async fn main() -> Result<()> {
     info!("Opening {:?}", spi_path);
 
     // create the spi device, see src/spi.rs
-    let spi = spi::Spi::new(spi_path)
+    let spi = spi::Spi::new(spi_path, opt.speed)
         .await
         .with_context(|| "failed to open SPI bus")?;
     info!("Configured SPI bus");
