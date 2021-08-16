@@ -9,7 +9,7 @@ anyhow = "1.0.42"
 rocket = { version = "0.5.0-rc.1", features = ["json"] }
 spidev = "0.4.1"
 structopt = "0.3.22"
-tokio = { version = "1.9.0", features = ["process"] }
+tokio = { version = "1.10.0", features = ["process"] }
 tracing = "0.1.26"
 tracing-subscriber = "0.2.19"
 
