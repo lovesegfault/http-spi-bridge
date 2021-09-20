@@ -10,7 +10,7 @@ rocket = { version = "0.5.0-rc.1", features = ["json"] }
 spidev = "0.4.1"
 structopt = "0.3.23"
 tokio = { version = "1.11.0", features = ["process"] }
-tracing = "0.1.26"
+tracing = "0.1.28"
 tracing-subscriber = "0.2.20"
 
 [profile.release]
