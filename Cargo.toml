@@ -5,7 +5,7 @@ authors = ["Bernardo Meurer <bernardo@meurer.org>"]
 edition = "2018"
 
 [dependencies]
-anyhow = "1.0.43"
+anyhow = "1.0.44"
 rocket = { version = "0.5.0-rc.1", features = ["json"] }
 spidev = "0.5.0"
 structopt = "0.3.23"
