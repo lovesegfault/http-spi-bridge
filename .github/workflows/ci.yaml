@@ -9,7 +9,7 @@ jobs:
   clippy:
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@v2.3.4
+      - uses: actions/checkout@v2.3.5
       - uses: actions-rs/toolchain@v1
         with:
             toolchain: nightly
@@ -23,7 +23,7 @@ jobs:
   nix-check:
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@v2.3.4
+      - uses: actions/checkout@v2.3.5
         with:
           fetch-depth: 0
       - uses: cachix/install-nix-action@v14.1
@@ -39,7 +39,7 @@ jobs:
   nix-build:
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@v2.3.4
+      - uses: actions/checkout@v2.3.5
         with:
           fetch-depth: 0
       - uses: cachix/install-nix-action@v14.1
@@ -64,7 +64,7 @@ jobs:
     if: github.ref == 'refs/heads/main'
     needs: [ nix-check, nix-build, clippy ]
     steps:
-      - uses: actions/checkout@v2.3.4
+      - uses: actions/checkout@v2.3.5
         with:
           fetch-depth: 0
       - uses: actions/download-artifact@v2
