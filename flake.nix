@@ -29,6 +29,9 @@
               rustToolchain = with final.pkgsBuildHost.fenix; combine [
                 stable.rustc
                 stable.cargo
+                stable.rust-src
+                stable.clippy
+                stable.rustfmt
                 targets.${final.stdenv.targetPlatform.config}.stable.rust-std
               ];
 
