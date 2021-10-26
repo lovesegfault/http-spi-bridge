@@ -35,7 +35,7 @@ jobs:
         with:
           name: nix-community
       - name: nix-check
-        run: nix flake check -L
+        run: nix flake check --no-build
   nix-build:
     runs-on: ubuntu-latest
     steps:
