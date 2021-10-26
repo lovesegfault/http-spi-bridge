@@ -26,14 +26,10 @@
           overlays = [ fenix.overlay gitignore.overlay ];
           crossOverlays = [
             (final: _: {
-              rustToolchain = with final.pkgsBuildHost.fenix; combine [
-                stable.rustc
-                stable.cargo
-                stable.rust-src
-                stable.clippy
-                stable.rustfmt
-                targets.${final.stdenv.targetPlatform.config}.stable.rust-std
-              ];
+              rustToolchain = final.pkgsBuildHost.fenix.fromToolchainFile {
+                file = ./rust-toolchain.toml;
+                sha256 = "sha256-L1e0o7azRjOHd0zBa+xkFnxdFulPofTedSTEYZSjj2s=";
+              };
 
               rustPlatform = final.makeRustPlatform {
                 cargo = final.rustToolchain;
