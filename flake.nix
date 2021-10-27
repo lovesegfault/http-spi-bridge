@@ -20,9 +20,11 @@
   outputs = { self, fenix, flake-utils, gitignore, nixpkgs, pre-commit-hooks }:
     flake-utils.lib.eachDefaultSystem (localSystem:
       let
+        lib = nixpkgs.lib;
+
+        crossSystem = lib.systems.examples.aarch64-multiplatform-musl;
         pkgs = import nixpkgs {
-          inherit localSystem;
-          crossSystem = nixpkgs.lib.systems.examples.aarch64-multiplatform-musl;
+          inherit localSystem crossSystem;
           overlays = [ fenix.overlay gitignore.overlay ];
           crossOverlays = [
             (final: _: {
@@ -38,6 +40,8 @@
             })
           ];
         };
+
+        systemToEnv = name: lib.replaceStrings [ "-" ] [ "_" ] (lib.toUpper name);
       in
       {
         packages.http-spi-bridge = pkgs.rustPlatform.buildRustPackage {
@@ -46,6 +50,8 @@
           src = pkgs.gitignoreSource ./.;
 
           cargoLock.lockFile = ./Cargo.lock;
+
+          nativeBuildInputs = with pkgs.pkgsBuildHost; [ stdenv.cc ];
 
           RUSTFLAGS = "-C target-feature=+crt-static";
         };
@@ -68,6 +74,9 @@
             nixpkgs-fmt
             qemu
           ];
+
+          CARGO_BUILD_TARGET = crossSystem.config;
+          "CARGO_TARGET_${systemToEnv crossSystem.config}_LINKER" = "${crossSystem.config}-gcc";
 
           inherit (self.defaultPackage.${localSystem}) RUSTFLAGS;
           inherit (self.checks.${localSystem}.pre-commit-check) shellHook;
