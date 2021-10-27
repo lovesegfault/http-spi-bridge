@@ -24,11 +24,13 @@
   outputs = { self, fenix, flake-utils, gitignore, naersk, nixpkgs, pre-commit-hooks }:
     flake-utils.lib.eachDefaultSystem (localSystem:
       let
-        crossSystem = nixpkgs.lib.systems.examples.aarch64-multiplatform-musl;
+        crossSystem = nixpkgs.lib.systems.examples.aarch64-multiplatform-musl // { useLLVM = true; };
         pkgs = import nixpkgs {
           inherit localSystem crossSystem;
-          overlays = [ fenix.overlay gitignore.overlay naersk.overlay ];
-          crossOverlays = [
+          overlays = [
+            fenix.overlay
+            gitignore.overlay
+            naersk.overlay
             (final: prev: {
               rustToolchain = final.fenix.combine [
                 (final.pkgsBuildHost.fenix.fromToolchainFile {
@@ -38,10 +40,13 @@
                 final.fenix.targets.${crossSystem.config}.stable.rust-std
               ];
 
+              rustStdenv = final.pkgsBuildHost.llvmPackages_13.stdenv;
+              rustLinker = final.pkgsBuildHost.llvmPackages_13.lld;
+
               naerskBuild = (prev.pkgsBuildHost.naersk.override {
                 cargo = final.rustToolchain;
                 rustc = final.rustToolchain;
-                stdenv = final.pkgsBuildHost.clang11Stdenv;
+                stdenv = final.rustStdenv;
               }).buildPackage;
             })
           ];
@@ -53,7 +58,7 @@
 
           src = pkgs.gitignoreSource ./.;
 
-          nativeBuildInputs = with pkgs.pkgsBuildHost; [ clang11Stdenv.cc lld_11 ];
+          nativeBuildInputs = with pkgs; [ rustStdenv.cc rustLinker ];
 
           CARGO_BUILD_TARGET = crossSystem.config;
 
@@ -76,7 +81,6 @@
             file
             nix-linter
             nixpkgs-fmt
-            qemu
           ];
 
           inherit (self.defaultPackage.${localSystem}) CARGO_BUILD_TARGET RUSTFLAGS;
