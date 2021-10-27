@@ -2,6 +2,7 @@ mod bridge;
 mod spi;
 
 use anyhow::{Context, Result};
+use axum::{AddExtensionLayer, Router};
 use structopt::StructOpt;
 use tracing::{info, Level};
 use tracing_subscriber::{EnvFilter, FmtSubscriber};
@@ -18,7 +19,7 @@ struct Opt {
     speed: u32,
 }
 
-#[rocket::main]
+#[tokio::main]
 async fn main() -> Result<()> {
     // setup the tracing subscriber to enable logging
     let subscriber = FmtSubscriber::builder()
@@ -45,16 +46,14 @@ async fn main() -> Result<()> {
     info!("Configured SPI bus");
 
     info!("Serving on {}", opt.addr);
-    rocket::build()
-        .configure(rocket::Config {
-            port: opt.addr.port(),
-            address: opt.addr.ip(),
-            ..rocket::Config::default()
-        })
-        .attach(bridge::stage(spi))
-        .launch()
+    let app = Router::new()
+        .route("/update_raw", axum::handler::post(bridge::write_data))
+        .layer(AddExtensionLayer::new(spi));
+
+    axum::Server::bind(&opt.addr)
+        .serve(app.into_make_service())
         .await
-        .with_context(|| "HTTP server failed to launch")?;
+        .with_context(|| "HTTP server failed")?;
 
     info!("Exiting");
     Ok(())
