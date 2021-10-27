@@ -9,7 +9,11 @@
       url = "github:hercules-ci/gitignore.nix";
       inputs.nixpkgs.follows = "nixpkgs";
     };
-    nixpkgs.url = "github:NixOS/nixpkgs/nixos-unstable";
+    naersk = {
+      url = "github:nix-community/naersk";
+      inputs.nixpkgs.follows = "nixpkgs";
+    };
+    nixpkgs.url = "github:NixOS/nixpkgs/nixos-unstable-small";
     pre-commit-hooks = {
       url = "github:cachix/pre-commit-hooks.nix";
       inputs.nixpkgs.follows = "nixpkgs";
@@ -17,43 +21,43 @@
     };
   };
 
-  outputs = { self, fenix, flake-utils, gitignore, nixpkgs, pre-commit-hooks }:
+  outputs = { self, fenix, flake-utils, gitignore, naersk, nixpkgs, pre-commit-hooks }:
     flake-utils.lib.eachDefaultSystem (localSystem:
       let
-        lib = nixpkgs.lib;
-
-        crossSystem = lib.systems.examples.aarch64-multiplatform-musl;
+        crossSystem = nixpkgs.lib.systems.examples.aarch64-multiplatform-musl;
         pkgs = import nixpkgs {
           inherit localSystem crossSystem;
-          overlays = [ fenix.overlay gitignore.overlay ];
+          overlays = [ fenix.overlay gitignore.overlay naersk.overlay ];
           crossOverlays = [
-            (final: _: {
-              rustToolchain = final.pkgsBuildHost.fenix.fromToolchainFile {
-                file = ./rust-toolchain.toml;
-                sha256 = "sha256-L1e0o7azRjOHd0zBa+xkFnxdFulPofTedSTEYZSjj2s=";
-              };
+            (final: prev: {
+              rustToolchain = final.fenix.combine [
+                (final.pkgsBuildHost.fenix.fromToolchainFile {
+                  file = ./rust-toolchain.toml;
+                  sha256 = "sha256-L1e0o7azRjOHd0zBa+xkFnxdFulPofTedSTEYZSjj2s=";
+                })
+                final.fenix.targets.${crossSystem.config}.stable.rust-std
+              ];
 
-              rustPlatform = final.makeRustPlatform {
+              naerskBuild = (prev.pkgsBuildHost.naersk.override {
                 cargo = final.rustToolchain;
                 rustc = final.rustToolchain;
-              };
+                stdenv = final.pkgsBuildHost.clang11Stdenv;
+              }).buildPackage;
             })
           ];
         };
-
-        systemToEnv = name: lib.replaceStrings [ "-" ] [ "_" ] (lib.toUpper name);
       in
       {
-        packages.http-spi-bridge = pkgs.rustPlatform.buildRustPackage {
+        packages.http-spi-bridge = pkgs.naerskBuild {
           name = "http-spi-bridge";
 
           src = pkgs.gitignoreSource ./.;
 
-          cargoLock.lockFile = ./Cargo.lock;
+          nativeBuildInputs = with pkgs.pkgsBuildHost; [ clang11Stdenv.cc lld_11 ];
 
-          nativeBuildInputs = with pkgs.pkgsBuildHost; [ stdenv.cc ];
+          CARGO_BUILD_TARGET = crossSystem.config;
 
-          RUSTFLAGS = "-C target-feature=+crt-static";
+          RUSTFLAGS = "-C linker-flavor=ld.lld -C target-feature=+crt-static";
         };
 
         defaultPackage = self.packages.${localSystem}.http-spi-bridge;
@@ -75,10 +79,7 @@
             qemu
           ];
 
-          CARGO_BUILD_TARGET = crossSystem.config;
-          "CARGO_TARGET_${systemToEnv crossSystem.config}_LINKER" = "${crossSystem.config}-gcc";
-
-          inherit (self.defaultPackage.${localSystem}) RUSTFLAGS;
+          inherit (self.defaultPackage.${localSystem}) CARGO_BUILD_TARGET RUSTFLAGS;
           inherit (self.checks.${localSystem}.pre-commit-check) shellHook;
         };
 

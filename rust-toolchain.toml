@@ -9,4 +9,3 @@ components = [
     "rustc",
     "rustfmt",
 ]
-targets = [ "aarch64-unknown-linux-musl" ]
