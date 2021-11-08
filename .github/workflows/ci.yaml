@@ -3,20 +3,6 @@ on:
   push:
   pull_request:
 jobs:
-  clippy:
-    runs-on: ubuntu-latest
-    steps:
-      - uses: actions/checkout@v2.3.5
-      - uses: actions-rs/toolchain@v1
-        with:
-            toolchain: nightly
-            components: clippy
-            target: aarch64-unknown-linux-gnu
-            override: true
-      - uses: actions-rs/clippy-check@v1
-        with:
-          token: ${{ secrets.GITHUB_TOKEN }}
-          args: --all-features
   nix-build:
     runs-on: ubuntu-latest
     steps:
@@ -34,9 +20,6 @@ jobs:
       - name: nix-build
         run: |
           nix build -L
-          mkdir -p ~/result
-          cp -v ./result/bin/http-spi-bridge ~/result
-      - uses: actions/upload-artifact@v2
-        with:
-          name: http-spi-bridge
-          path: ~/result/http-spi-bridge
+      - name: clippy
+        run: |
+          nix develop --ignore-environment --command cargo clippy
