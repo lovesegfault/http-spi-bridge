@@ -1,10 +1,7 @@
 name: ci
 on:
   push:
-    branches:
-      - main
-      - flake-update
-      - dependabot/*
+  pull_request:
 jobs:
   clippy:
     runs-on: ubuntu-latest
