@@ -47,7 +47,7 @@ async fn main() -> Result<()> {
 
     info!("Serving on {}", opt.addr);
     let app = Router::new()
-        .route("/update_raw", axum::handler::post(bridge::write_data))
+        .route("/update_raw", axum::routing::post(bridge::write_data))
         .layer(AddExtensionLayer::new(spi));
 
     axum::Server::bind(&opt.addr)
