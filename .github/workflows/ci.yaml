@@ -22,6 +22,3 @@ jobs:
       - name: nix-build
         run: |
           nix build -L
-      - name: clippy
-        run: |
-          nix develop --ignore-environment --command cargo clippy
