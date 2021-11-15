@@ -8,7 +8,7 @@ edition = "2018"
 anyhow = "1.0.45"
 axum = "0.3.2"
 serde = { version = "1.0.130", features = ["derive"] }
-serde_json = "1.0.69"
+serde_json = "1.0.70"
 spidev = "0.5.0"
 structopt = "0.3.25"
 tokio = { version = "1.13.0", features = ["fs", "io-util", "macros", "process", "rt-multi-thread"] }
