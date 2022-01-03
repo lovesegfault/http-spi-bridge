@@ -32,12 +32,14 @@
             gitignore.overlay
             naersk.overlay
             (final: prev: {
+              rustToolchainCfg = {
+                file = ./rust-toolchain.toml;
+                sha256 = "sha256-6PfBjfCI9DaNRyGigEmuUP2pcamWsWGc4g7SNEHqD2c=";
+              };
+
               rustToolchain = final.fenix.combine [
-                (final.pkgsBuildHost.fenix.fromToolchainFile {
-                  file = ./rust-toolchain.toml;
-                  sha256 = "sha256-L1e0o7azRjOHd0zBa+xkFnxdFulPofTedSTEYZSjj2s=";
-                })
-                final.fenix.targets.${crossSystem.config}.stable.rust-std
+                (final.pkgsBuildHost.fenix.fromToolchainFile final.rustToolchainCfg)
+                (final.fenix.targets.${crossSystem.config}.fromToolchainFile final.rustToolchainCfg)
               ];
 
               rustStdenv = final.pkgsBuildHost.llvmPackages_13.stdenv;
