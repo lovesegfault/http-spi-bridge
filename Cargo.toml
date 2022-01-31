@@ -13,7 +13,7 @@ spidev = "0.5.1"
 structopt = "0.3.25"
 tokio = { version = "1.15.0", features = ["fs", "io-util", "macros", "process", "rt-multi-thread"] }
 tracing = "0.1.29"
-tracing-subscriber = { version = "0.3.5", features = ["env-filter"] }
+tracing-subscriber = { version = "0.3.7", features = ["env-filter"] }
 
 [profile.release]
 lto = "fat"
