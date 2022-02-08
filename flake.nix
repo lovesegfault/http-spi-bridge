@@ -34,7 +34,7 @@
             (final: prev: {
               rustToolchainCfg = {
                 file = ./rust-toolchain.toml;
-                sha256 = "sha256-6PfBjfCI9DaNRyGigEmuUP2pcamWsWGc4g7SNEHqD2c=";
+                sha256 = "sha256-NL+YHnOj1++1O7CAaQLijwAxKJW9SnHg8qsiOJ1m0Kk=";
               };
 
               rustToolchain = final.fenix.combine [
