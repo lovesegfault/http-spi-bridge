@@ -83,10 +83,11 @@
             cargo-bloat
             cargo-edit
             cargo-udeps
-            rust-analyzer-nightly
             file
             nix-linter
             nixpkgs-fmt
+            rnix-lsp
+            rust-analyzer-nightly
           ];
 
           inherit (self.defaultPackage.${localSystem}) CARGO_BUILD_TARGET RUSTFLAGS;
