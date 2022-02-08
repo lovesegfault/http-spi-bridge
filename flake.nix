@@ -25,7 +25,7 @@
     };
   };
 
-  outputs = { self, fenix, flake-utils, gitignore, naersk, nixpkgs, pre-commit-hooks }:
+  outputs = { self, fenix, flake-utils, gitignore, naersk, nixpkgs, pre-commit-hooks, ... }:
     flake-utils.lib.eachDefaultSystem (localSystem:
       let
         crossSystem = nixpkgs.lib.systems.examples.aarch64-multiplatform-musl // { useLLVM = true; };
