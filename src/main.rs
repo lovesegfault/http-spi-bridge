@@ -3,19 +3,19 @@ mod spi;
 
 use anyhow::{Context, Result};
 use axum::{AddExtensionLayer, Router};
-use structopt::StructOpt;
+use clap::StructOpt;
 use tracing::{info, Level};
 use tracing_subscriber::{EnvFilter, FmtSubscriber};
 
 use std::{net::SocketAddr, path::PathBuf};
 
-#[derive(Debug, StructOpt)]
-struct Opt {
-    #[structopt(short, long, default_value = "/dev/spidev0.0", parse(from_os_str))]
+#[derive(Debug, clap::Parser)]
+struct Args {
+    #[clap(short, long, default_value = "/dev/spidev0.0", parse(from_os_str))]
     device: PathBuf,
-    #[structopt(short, long, default_value = "127.0.0.1:8000")]
+    #[clap(short, long, default_value = "127.0.0.1:8000")]
     addr: SocketAddr,
-    #[structopt(short, long, default_value = "300000")]
+    #[clap(short, long, default_value = "300000")]
     speed: u32,
 }
 
@@ -30,7 +30,7 @@ async fn main() -> Result<()> {
         .with_context(|| "Unable to set global default subscriber")?;
     info!("Starting");
 
-    let opt = Opt::from_args_safe().with_context(|| "failed to parse command line arguments")?;
+    let opt = Args::parse();
 
     // canonicalize the spi path to ensure it exists
     let spi_path = opt
