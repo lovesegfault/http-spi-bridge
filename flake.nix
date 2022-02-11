@@ -18,14 +18,9 @@
       inputs.nixpkgs.follows = "nixpkgs";
     };
     nixpkgs.url = "github:NixOS/nixpkgs/nixos-unstable-small";
-    pre-commit-hooks = {
-      url = "github:cachix/pre-commit-hooks.nix";
-      inputs.nixpkgs.follows = "nixpkgs";
-      inputs.flake-utils.follows = "flake-utils";
-    };
   };
 
-  outputs = { self, fenix, flake-utils, gitignore, naersk, nixpkgs, pre-commit-hooks, ... }:
+  outputs = { self, fenix, flake-utils, gitignore, naersk, nixpkgs, ... }:
     flake-utils.lib.eachDefaultSystem (localSystem:
       let
         crossSystem = nixpkgs.lib.systems.examples.aarch64-multiplatform-musl // { useLLVM = true; };
@@ -77,19 +72,14 @@
             file
             nix-linter
             nixpkgs-fmt
+            pre-commit
             rnix-lsp
             rust-analyzer-nightly
           ];
 
-          inherit (self.checks.${localSystem}.pre-commit-check) shellHook;
+          shellHook = ''
+            pre-commit install --install-hooks
+          '';
         };
-
-        checks.pre-commit-check = (pre-commit-hooks.lib.${localSystem}.run {
-          inherit src;
-          hooks = {
-            nix-linter.enable = true;
-            nixpkgs-fmt.enable = true;
-          };
-        });
       });
 }
