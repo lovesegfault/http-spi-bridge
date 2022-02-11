@@ -7,4 +7,4 @@ let
   };
   flake = import tarball { src = ./.; };
 in
-  flake.shellNix
+flake.shellNix
