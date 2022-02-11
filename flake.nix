@@ -32,15 +32,17 @@
 
         inherit (pkgs) pkgsBuildBuild pkgsBuildHost;
 
+        llvmToolchain = pkgsBuildHost.llvmPackages_latest;
+
         rustToolchain = pkgsBuildHost.fenix.fromToolchainFile {
           file = ./rust-toolchain.toml;
           sha256 = "sha256-NL+YHnOj1++1O7CAaQLijwAxKJW9SnHg8qsiOJ1m0Kk=";
         };
 
         naerskCross = pkgsBuildHost.naersk.override {
+          inherit (llvmToolchain) stdenv;
           cargo = rustToolchain;
           rustc = rustToolchain;
-          stdenv = pkgsBuildHost.llvmPackages_latest.stdenv;
         };
 
         src = pkgs.gitignoreSource ./.;
@@ -51,10 +53,7 @@
 
           inherit src;
 
-          nativeBuildInputs = with pkgsBuildHost.llvmPackages_latest; [
-            stdenv.cc
-            lld
-          ];
+          nativeBuildInputs = with llvmToolchain; [ stdenv.cc lld ];
         };
 
         defaultPackage = self.packages.${localSystem}.http-spi-bridge;
