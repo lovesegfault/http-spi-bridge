@@ -29,46 +29,37 @@
     flake-utils.lib.eachDefaultSystem (localSystem:
       let
         crossSystem = nixpkgs.lib.systems.examples.aarch64-multiplatform-musl // { useLLVM = true; };
+
         pkgs = import nixpkgs {
           inherit localSystem crossSystem;
-          overlays = [
-            fenix.overlay
-            gitignore.overlay
-            naersk.overlay
-            (final: prev: {
-              rustToolchainCfg = {
-                file = ./rust-toolchain.toml;
-                sha256 = "sha256-NL+YHnOj1++1O7CAaQLijwAxKJW9SnHg8qsiOJ1m0Kk=";
-              };
-
-              rustToolchain = final.fenix.combine [
-                (final.pkgsBuildHost.fenix.fromToolchainFile final.rustToolchainCfg)
-                (final.fenix.targets.${crossSystem.config}.fromToolchainFile final.rustToolchainCfg)
-              ];
-
-              rustStdenv = final.pkgsBuildHost.llvmPackages_13.stdenv;
-              rustLinker = final.pkgsBuildHost.llvmPackages_13.lld;
-
-              naerskBuild = (prev.pkgsBuildHost.naersk.override {
-                cargo = final.rustToolchain;
-                rustc = final.rustToolchain;
-                stdenv = final.rustStdenv;
-              }).buildPackage;
-            })
-          ];
+          overlays = [ fenix.overlay gitignore.overlay naersk.overlay ];
         };
+
+        inherit (pkgs) pkgsBuildBuild pkgsBuildHost;
+
+        rustToolchain = pkgsBuildHost.fenix.fromToolchainFile {
+          file = ./rust-toolchain.toml;
+          sha256 = "sha256-NL+YHnOj1++1O7CAaQLijwAxKJW9SnHg8qsiOJ1m0Kk=";
+        };
+
+        naerskCross = pkgsBuildHost.naersk.override {
+          cargo = rustToolchain;
+          rustc = rustToolchain;
+          stdenv = pkgsBuildHost.llvmPackages_latest.stdenv;
+        };
+
+        src = pkgs.gitignoreSource ./.;
       in
       {
-        packages.http-spi-bridge = pkgs.naerskBuild {
+        packages.http-spi-bridge = naerskCross.buildPackage {
           name = "http-spi-bridge";
 
-          src = pkgs.gitignoreSource ./.;
+          inherit src;
 
-          nativeBuildInputs = with pkgs; [ rustStdenv.cc rustLinker ];
-
-          CARGO_BUILD_TARGET = crossSystem.config;
-
-          RUSTFLAGS = "-C linker-flavor=ld.lld -C target-feature=+crt-static";
+          nativeBuildInputs = with pkgsBuildHost.llvmPackages_latest; [
+            stdenv.cc
+            lld
+          ];
         };
 
         defaultPackage = self.packages.${localSystem}.http-spi-bridge;
@@ -78,7 +69,7 @@
 
           inputsFrom = [ self.defaultPackage.${localSystem} ];
 
-          nativeBuildInputs = with pkgs.pkgsBuildBuild; [
+          nativeBuildInputs = with pkgsBuildBuild; [
             cargo-audit
             cargo-bloat
             cargo-edit
@@ -90,12 +81,11 @@
             rust-analyzer-nightly
           ];
 
-          inherit (self.defaultPackage.${localSystem}) CARGO_BUILD_TARGET RUSTFLAGS;
           inherit (self.checks.${localSystem}.pre-commit-check) shellHook;
         };
 
         checks.pre-commit-check = (pre-commit-hooks.lib.${localSystem}.run {
-          src = ./.;
+          inherit src;
           hooks = {
             nix-linter.enable = true;
             nixpkgs-fmt.enable = true;
