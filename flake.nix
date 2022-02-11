@@ -74,6 +74,7 @@
             pre-commit
             rnix-lsp
             rust-analyzer-nightly
+            (pkgs.lib.lowPrio git)
           ];
 
           shellHook = ''

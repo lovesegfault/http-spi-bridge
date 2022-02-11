@@ -34,4 +34,7 @@ jobs:
           name: nix-community
       - name: nix-lints
         run: |
-          nix develop --command pre-commit run --all-files
+          nix develop \
+            --ignore-environment \
+            --command \
+            pre-commit run --all-files
