@@ -34,12 +34,6 @@ repos:
       files: "\\.rs$"
       language: system
       pass_filenames: false
-    - id: cargo-clippy
-      name: cargo clippy
-      entry: cargo clippy -- --deny warnings
-      files: "\\.rs$"
-      language: system
-      pass_filenames: false
     - id: nixpkgs-fmt
       entry: nixpkgs-fmt
       files: "\\.nix$"
