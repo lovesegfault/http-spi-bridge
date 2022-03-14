@@ -5,7 +5,7 @@ authors = ["Bernardo Meurer <bernardo@meurer.org>"]
 edition = "2018"
 
 [dependencies]
-anyhow = "1.0.54"
+anyhow = "1.0.56"
 axum = "0.4.5"
 clap = { version = "3.1.0", features = ["derive"]}
 serde = { version = "1.0.136", features = ["derive"] }
