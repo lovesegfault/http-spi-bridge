@@ -13,7 +13,7 @@ serde_json = "1.0.79"
 spidev = "0.5.1"
 tokio = { version = "1.17.0", features = ["fs", "io-util", "macros", "process", "rt-multi-thread"] }
 tracing = "0.1.32"
-tracing-subscriber = { version = "0.3.9", features = ["env-filter"] }
+tracing-subscriber = { version = "0.3.11", features = ["env-filter"] }
 
 [profile.release]
 lto = "fat"
