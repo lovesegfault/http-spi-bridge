@@ -19,7 +19,7 @@ jobs:
           nix build -L
           mkdir -p ~/result
           cp -v ./result/bin/http-spi-bridge ~/result
-      - uses: actions/upload-artifact@v2
+      - uses: actions/upload-artifact@v3
         with:
           name: http-spi-bridge
           path: ~/result/http-spi-bridge
