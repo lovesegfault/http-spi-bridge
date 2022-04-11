@@ -29,7 +29,7 @@ jobs:
     needs: [ nix-build ]
     steps:
       - uses: actions/checkout@v2.4.0
-      - uses: actions/download-artifact@v2
+      - uses: actions/download-artifact@v3
         with:
           name: http-spi-bridge
       - uses: mathieudutour/github-tag-action@v6.0
