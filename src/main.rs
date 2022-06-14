@@ -2,7 +2,7 @@ mod bridge;
 mod spi;
 
 use anyhow::{Context, Result};
-use axum::{AddExtensionLayer, Router};
+use axum::{Extension, Router};
 use clap::StructOpt;
 use tracing::{info, Level};
 use tracing_subscriber::{EnvFilter, FmtSubscriber};
@@ -11,11 +11,11 @@ use std::{net::SocketAddr, path::PathBuf};
 
 #[derive(Debug, clap::Parser)]
 struct Args {
-    #[clap(short, long, default_value = "/dev/spidev0.0", parse(from_os_str))]
+    #[clap(short, long, value_parser, default_value = "/dev/spidev0.0")]
     device: PathBuf,
-    #[clap(short, long, default_value = "127.0.0.1:8000")]
+    #[clap(short, long, value_parser, default_value = "127.0.0.1:8000")]
     addr: SocketAddr,
-    #[clap(short, long, default_value = "300000")]
+    #[clap(short, long, value_parser, default_value = "300000")]
     speed: u32,
 }
 
@@ -48,7 +48,7 @@ async fn main() -> Result<()> {
     info!("Serving on {}", opt.addr);
     let app = Router::new()
         .route("/update_raw", axum::routing::post(bridge::write_data))
-        .layer(AddExtensionLayer::new(spi));
+        .layer(Extension(spi));
 
     axum::Server::bind(&opt.addr)
         .serve(app.into_make_service())
