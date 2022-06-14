@@ -36,7 +36,7 @@
 
         rustToolchain = pkgsBuildHost.fenix.fromToolchainFile {
           file = ./rust-toolchain.toml;
-          sha256 = "sha256-NL+YHnOj1++1O7CAaQLijwAxKJW9SnHg8qsiOJ1m0Kk=";
+          sha256 = "sha256-oro0HsosbLRAuZx68xd0zfgPl6efNj2AQruKRq3KA2g";
         };
 
         naerskCross = pkgsBuildHost.naersk.override {
