@@ -8,7 +8,7 @@ jobs:
   nix-build:
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@v2.4.0
+      - uses: actions/checkout@v3
       - uses: cachix/install-nix-action@v17
         with:
           extra_nix_config: |
@@ -18,12 +18,11 @@ jobs:
         with:
           name: nix-community
       - name: nix-build
-        run: |
-          nix build -L
-  nix-lints:
+        run: nix build -L
+  nix-check:
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@v2.4.0
+      - uses: actions/checkout@v3
       - uses: cachix/install-nix-action@v17
         with:
           extra_nix_config: |
@@ -33,8 +32,4 @@ jobs:
         with:
           name: nix-community
       - name: nix-lints
-        run: |
-          nix develop \
-            --ignore-environment \
-            --command \
-            pre-commit run --all-files
+        run: nix flake check -L
