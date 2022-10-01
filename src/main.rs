@@ -3,14 +3,14 @@ mod spi;
 
 use anyhow::{Context, Result};
 use axum::{Extension, Router};
-use clap::StructOpt;
+use clap::Parser;
 use tracing::{info, Level};
 use tracing_subscriber::{EnvFilter, FmtSubscriber};
 
 use std::{net::SocketAddr, path::PathBuf};
 
-#[derive(Debug, clap::Parser)]
-struct Args {
+#[derive(Debug, Parser)]
+struct Cli {
     #[clap(short, long, value_parser, default_value = "/dev/spidev0.0")]
     device: PathBuf,
     #[clap(short, long, value_parser, default_value = "127.0.0.1:8000")]
@@ -30,31 +30,42 @@ async fn main() -> Result<()> {
         .with_context(|| "Unable to set global default subscriber")?;
     info!("Starting");
 
-    let opt = Args::parse();
+    let cli = Cli::parse();
 
     // canonicalize the spi path to ensure it exists
-    let spi_path = opt
+    let spi_path = cli
         .device
         .canonicalize()
-        .with_context(|| format!("invalid path {:?} for SPI device", opt.device))?;
+        .with_context(|| format!("invalid path {:?} for SPI device", cli.device))?;
     info!("Opening {:?}", spi_path);
 
     // create the spi device, see src/spi.rs
-    let spi = spi::Spi::new(spi_path, opt.speed)
+    let spi = spi::Spi::new(spi_path, cli.speed)
         .await
         .with_context(|| "failed to open SPI bus")?;
     info!("Configured SPI bus");
 
-    info!("Serving on {}", opt.addr);
+    info!("Serving on {}", cli.addr);
     let app = Router::new()
         .route("/update_raw", axum::routing::post(bridge::write_data))
         .layer(Extension(spi));
 
-    axum::Server::bind(&opt.addr)
+    axum::Server::bind(&cli.addr)
         .serve(app.into_make_service())
         .await
         .with_context(|| "HTTP server failed")?;
 
     info!("Exiting");
     Ok(())
+}
+
+#[cfg(test)]
+mod tests {
+    use super::*;
+
+    #[test]
+    fn verify_cli() {
+        use clap::CommandFactory;
+        Cli::command().debug_assert()
+    }
 }
