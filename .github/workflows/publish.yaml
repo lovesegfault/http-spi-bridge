@@ -5,7 +5,7 @@ jobs:
   nix-build:
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@v2.4.0
+      - uses: actions/checkout@v3.1.0
       - uses: cachix/install-nix-action@v17
         with:
           extra_nix_config: |
@@ -28,7 +28,7 @@ jobs:
     if: github.ref == 'refs/heads/main'
     needs: [ nix-build ]
     steps:
-      - uses: actions/checkout@v2.4.0
+      - uses: actions/checkout@v3.1.0
       - uses: actions/download-artifact@v3
         with:
           name: http-spi-bridge
