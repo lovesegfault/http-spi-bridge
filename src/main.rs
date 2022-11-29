@@ -2,7 +2,7 @@ mod bridge;
 mod spi;
 
 use anyhow::{Context, Result};
-use axum::{Extension, Router};
+use axum::{routing::post, Router};
 use clap::Parser;
 use tracing::{info, Level};
 use tracing_subscriber::{EnvFilter, FmtSubscriber};
@@ -47,8 +47,8 @@ async fn main() -> Result<()> {
 
     info!("Serving on {}", cli.addr);
     let app = Router::new()
-        .route("/update_raw", axum::routing::post(bridge::write_data))
-        .layer(Extension(spi));
+        .route("/update_raw", post(bridge::write_data))
+        .with_state(spi);
 
     axum::Server::bind(&cli.addr)
         .serve(app.into_make_service())

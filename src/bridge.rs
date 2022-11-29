@@ -1,4 +1,4 @@
-use axum::{extract::Extension, response::IntoResponse, Json};
+use axum::{extract::State, response::IntoResponse, Json};
 use serde_json::json;
 use tracing::error;
 
@@ -12,8 +12,8 @@ pub struct Data {
 }
 
 pub(crate) async fn write_data(
+    State(dev): State<Spi>,
     Json(data): Json<Data>,
-    Extension(dev): Extension<Spi>,
 ) -> impl IntoResponse {
     if data.raw.len() != Spi::DATA_LEN as usize {
         error!("raw_data not {} bytes, refusing to write", Spi::DATA_LEN);
