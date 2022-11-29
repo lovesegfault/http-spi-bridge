@@ -3,7 +3,12 @@
     crane = {
       url = "github:ipetkov/crane";
       inputs.nixpkgs.follows = "nixpkgs";
+      inputs.flake-compat.follows = "flake-compat";
       inputs.flake-utils.follows = "flake-utils";
+    };
+    flake-compat = {
+      url = "github:edolstra/flake-compat";
+      flake = false;
     };
     flake-utils.url = "github:numtide/flake-utils";
     gitignore = {
@@ -14,7 +19,9 @@
     pre-commit = {
       url = "github:cachix/pre-commit-hooks.nix";
       inputs.nixpkgs.follows = "nixpkgs";
+      inputs.flake-compat.follows = "flake-compat";
       inputs.flake-utils.follows = "flake-utils";
+      inputs.gitignore.follows = "gitignore";
     };
     rust = {
       url = "github:oxalica/rust-overlay";
@@ -23,7 +30,7 @@
     };
   };
 
-  outputs = { self, crane, flake-utils, gitignore, nixpkgs, pre-commit, rust }:
+  outputs = { self, crane, flake-utils, gitignore, nixpkgs, pre-commit, rust, ... }:
     let
       systems = [ "aarch64-linux" "x86_64-linux" ];
     in
