@@ -9,7 +9,7 @@ anyhow = "1.0.69"
 axum = { version = "0.6.1", features = ["macros"] }
 clap = { version = "4.1.6", features = ["derive"] }
 serde = { version = "1.0.148", features = ["derive"] }
-serde_json = "1.0.93"
+serde_json = "1.0.94"
 spidev = "0.5.1"
 tokio = { version = "1.25.0", features = ["fs", "io-util", "macros", "process", "rt-multi-thread"] }
 tracing = "0.1.37"
